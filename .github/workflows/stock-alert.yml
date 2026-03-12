@@ -1,0 +1,35 @@
+name: Stock Price Alert Agent
+
+on:
+  schedule:
+    # Runs every 5 minutes — GitHub Actions minimum interval is 5 min
+    - cron: '*/5 * * * *'
+  workflow_dispatch:  # allows you to trigger it manually from GitHub UI
+
+jobs:
+  check-prices:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run stock alert agent
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python agent.py
