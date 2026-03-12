@@ -23,42 +23,23 @@ ALERTS = [
         "alert_below": 100.00,
     },
     {
-        "symbol":      "AAPL",
-        "market":      "US",
-        "label":       "Apple",
-        "alert_above": 240.00,
-        "alert_below": 180.00,
-    },
-    {
         "symbol":      "TSM",
         "market":      "US",
         "label":       "TSMC ADR",
-        "alert_above": 220.00,
-        "alert_below": 150.00,
+        "alert_above": 350.00,
+        "alert_below": 330.00,
     },
-    {
-        "symbol":      "AVGO",
-        "market":      "US",
-        "label":       "Broadcom",
-        "alert_above": 400.00,
-        "alert_below": 280.00,
-    },
+
 
     # ── KOSPI Stocks (KRW) ──────────────────────────────────
     {
         "symbol":      "005930",   # Samsung Electronics
         "market":      "KOSPI",
         "label":       "삼성전자",
-        "alert_above": 80000,
-        "alert_below": 55000,
+        "alert_above": 200000,
+        "alert_below": 190000,
     },
-    {
-        "symbol":      "000660",   # SK Hynix
-        "market":      "KOSPI",
-        "label":       "SK하이닉스",
-        "alert_above": 220000,
-        "alert_below": 150000,
-    },
+
 
     # ── Add more stocks here ─────────────────────────────────
     # {
