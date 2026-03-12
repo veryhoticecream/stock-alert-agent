@@ -1,0 +1,159 @@
+============================================================
+  STOCK ALERT AGENT — GITHUB ACTIONS SETUP GUIDE
+  100% Free. No VPS. No credit card. Runs every 5 minutes.
+============================================================
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 1 — Create your Telegram bot (3 minutes)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open Telegram → search @BotFather → /newbot
+2. Name it anything (e.g. "My Stock Alert")
+3. Copy the BOT TOKEN  (looks like: 1234567890:ABCdef...)
+
+4. Search @userinfobot → press Start
+5. Copy your CHAT ID  (looks like: 123456789)
+
+6. Search your new bot → press START
+   (required so it can message you)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 2 — Create a GitHub repository
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to https://github.com → sign in (or create free account)
+2. Click "+" → "New repository"
+3. Name it: stock-alert-agent
+4. Set to PRIVATE (keeps your config safe)
+5. Click "Create repository"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 3 — Upload the files
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Option A — Using GitHub website (no git needed):
+  1. In your new repo, click "uploading an existing file"
+  2. Upload ALL files EXCEPT the workflows folder:
+       agent.py, config.py, price_fetcher.py,
+       notifier.py, requirements.txt,
+       alert_state.json, .gitignore
+  3. Commit them
+
+  4. Now create the workflow file manually:
+     → Click "Add file" → "Create new file"
+     → Type the filename as:  .github/workflows/stock-alert.yml
+       (GitHub will auto-create the folders)
+     → Paste the contents of workflows/stock-alert.yml
+     → Commit
+
+Option B — Using git on your computer:
+  git clone https://github.com/YOURUSERNAME/stock-alert-agent
+  cp -r stock_alert_github/* stock-alert-agent/
+  mkdir -p stock-alert-agent/.github/workflows
+  cp stock_alert_github/workflows/stock-alert.yml \
+     stock-alert-agent/.github/workflows/
+  cd stock-alert-agent
+  git add .
+  git commit -m "Add stock alert agent"
+  git push
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 4 — Add your Telegram credentials as GitHub Secrets
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This keeps your token SAFE — never hardcoded in the repo.
+
+1. In your GitHub repo, go to:
+   Settings → Secrets and variables → Actions → New repository secret
+
+2. Add secret #1:
+   Name:  TELEGRAM_BOT_TOKEN
+   Value: (paste your bot token from BotFather)
+
+3. Add secret #2:
+   Name:  TELEGRAM_CHAT_ID
+   Value: (paste your chat ID from userinfobot)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 5 — Edit your stock thresholds
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Edit config.py directly on GitHub:
+1. Click config.py in your repo
+2. Click the pencil icon (Edit)
+3. Update alert_above and alert_below values for each stock
+4. Add or remove stocks as needed
+5. Commit changes
+
+Common KOSPI codes:
+  005930 = 삼성전자
+  000660 = SK하이닉스
+  035420 = NAVER
+  005380 = 현대차
+  051910 = LG화학
+  035720 = 카카오
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 6 — Test it manually
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to your repo → Actions tab
+2. Click "Stock Price Alert Agent" on the left
+3. Click "Run workflow" → "Run workflow" (green button)
+4. Watch it run — click the job to see live logs
+5. Check your Telegram — you should get a message!
+
+If it fails, click the red X to see what went wrong.
+Most common issue: secrets not added correctly (Step 4).
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HOW IT WORKS (no server needed!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Every 5 minutes, GitHub's own servers:
+  1. Spin up a fresh Ubuntu machine (free)
+  2. Install your dependencies
+  3. Run agent.py — checks all prices
+  4. If a threshold is crossed → sends you a Telegram message
+  5. Saves alert_state.json back to the repo
+     so the same alert doesn't fire again next run
+  6. Shuts down
+
+You get ~2,000 free minutes/month on GitHub Actions.
+Each run takes ~30 seconds → 288 runs/day × 0.5min = 144 min/day
+Well within the free limit.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MANAGING YOUR ALERTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add a stock:       Edit config.py on GitHub, add a new block
+Change threshold:  Edit the number in config.py on GitHub
+Pause the agent:   Actions tab → "Stock Price Alert Agent"
+                   → ··· menu → Disable workflow
+Resume:            Same menu → Enable workflow
+View run history:  Actions tab → click any run to see logs
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPORTANT NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Checks run every 5 min (GitHub minimum — can't go faster)
+• Prices are ~15 min delayed via Yahoo Finance (free tier)
+• KOSPI market hours: Mon–Fri 09:00–15:30 KST
+• US market hours:    Mon–Fri 09:30–16:00 EST
+• GitHub may delay scheduled runs by a few minutes when
+  their servers are busy — this is normal
+• GitHub disables scheduled workflows after 60 days of
+  repo inactivity → just make any small edit to re-enable
+• Everything is 100% free — no credit card ever needed
+============================================================
