@@ -30,6 +30,6 @@ jobs:
 
       - name: Run stock alert agent
         env:
-          TELEGRAM_BOT_TOKEN: ${{8663391935:AAE3xLOt5JNd1sbvXliPyRSmh777T-Y3cOU}}
-          TELEGRAM_CHAT_ID: ${{stockpricealertrnbot}}
+          TELEGRAM_BOT_TOKEN: ${{"8663391935:AAE3xLOt5JNd1sbvXliPyRSmh777T-Y3cOU"}}
+          TELEGRAM_CHAT_ID: ${{"stockpricealertrnbot"}}
         run: python agent.py
