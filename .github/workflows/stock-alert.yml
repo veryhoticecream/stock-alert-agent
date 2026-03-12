@@ -28,8 +28,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run stock alert agent
-        env:
-          TELEGRAM_BOT_TOKEN: ${{"8663391935:AAE3xLOt5JNd1sbvXliPyRSmh777T-Y3cOU"}}
-          TELEGRAM_CHAT_ID: ${{"stockpricealertrnbot"}}
-        run: python agent.py
+  - name: Run stock alert
+  run: python agent.py
+  env:
+    TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
