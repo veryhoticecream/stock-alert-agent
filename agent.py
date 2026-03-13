@@ -12,10 +12,9 @@ import sys
 import logging
 from datetime import datetime
 from price_fetcher import get_price
-from notifier import send_telegram
+from notifier import send_telegram, build_alert_message
 from config import ALERTS
 
-# ── Logging ────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -39,72 +38,59 @@ def save_state(state: dict):
 
 
 def main():
-    log.info("🤖 Stock Alert Agent running via GitHub Actions")
-    log.info(f"📊 Checking {len(ALERTS)} ticker(s)...")
+    log.info("Stock Alert Agent running via GitHub Actions")
+    log.info(f"Checking {len(ALERTS)} ticker(s)...")
 
     state = load_state()
     alerts_sent = 0
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 
     for alert in ALERTS:
-        symbol = alert["symbol"]
-        market = alert["market"]
-        above  = alert.get("alert_above")
-        below  = alert.get("alert_below")
-        label  = alert.get("label", symbol)
+        symbol   = alert["symbol"]
+        market   = alert["market"]
+        above    = alert.get("alert_above")
+        below    = alert.get("alert_below")
+        label    = alert.get("label", symbol)
+        currency = "KRW" if market == "KOSPI" else "USD"
 
         try:
             price = get_price(symbol, market)
         except Exception as e:
-            log.warning(f"⚠️  Could not fetch {symbol}: {e}")
+            log.warning(f"Could not fetch {symbol}: {e}")
             continue
 
-        currency = "KRW" if market == "KOSPI" else "USD"
-        log.info(f"{label} ({symbol}) → {price:,.2f} {currency}")
+        log.info(f"{label} ({symbol}) -> {price:,.2f} {currency}")
 
-        # ── Above threshold ───────────────────────────────────
         if above is not None:
             key = f"{symbol}_above_{above}"
             if price >= above:
                 if not state.get(key):
-                    msg = (
-                        f"🚨 *PRICE ALERT*\n"
-                        f"📈 *{label}* rose ABOVE threshold!\n\n"
-                        f"💰 Current: `{price:,.2f} {currency}`\n"
-                        f"🎯 Threshold: `{above:,.2f}`\n"
-                        f"🕐 {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}"
-                    )
+                    msg = build_alert_message(label, symbol, "above", price, above, currency, timestamp)
                     send_telegram(msg)
                     state[key] = True
                     if below is not None:
                         state[f"{symbol}_below_{below}"] = False
                     alerts_sent += 1
-                    log.info(f"✅ Alert sent: {label} above {above}")
+                    log.info(f"Alert sent: {label} above {above}")
             else:
-                state[key] = False  # reset so it can fire again next time
+                state[key] = False
 
-        # ── Below threshold ───────────────────────────────────
         if below is not None:
             key = f"{symbol}_below_{below}"
             if price <= below:
                 if not state.get(key):
-                    msg = (
-                        f"🚨 *PRICE ALERT*\n"
-                        f"📉 *{label}* dropped BELOW threshold!\n\n"
-                        f"💰 Current: `{price:,.2f} {currency}`\n"
-                        f"🎯 Threshold: `{below:,.2f}`\n"
-                        f"🕐 {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}"
-                    )
+                    msg = build_alert_message(label, symbol, "below", price, below, currency, timestamp)
                     send_telegram(msg)
                     state[key] = True
                     if above is not None:
                         state[f"{symbol}_above_{above}"] = False
                     alerts_sent += 1
-                    log.info(f"✅ Alert sent: {label} below {below}")
+                    log.info(f"Alert sent: {label} below {below}")
             else:
-                state[key] = False  # reset
+                state[key] = False
 
     save_state(state)
-    log.info(f"✅ Done. {alerts_sent} alert(s) sent this run.")
+    log.info(f"Done. {alerts_sent} alert(s) sent this run.")
 
 
 if __name__ == "__main__":
