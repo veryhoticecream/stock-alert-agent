@@ -19,8 +19,8 @@ ALERTS = [
         "symbol":      "NVDA",
         "market":      "US",
         "label":       "NVIDIA",
-        "alert_above": 160.00,
-        "alert_below": 100.00,
+        "alert_above": 190.00,
+        "alert_below": 180.00,
     },
     {
         "symbol":      "TSM",
