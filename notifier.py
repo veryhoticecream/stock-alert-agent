@@ -1,29 +1,28 @@
 """
 notifier.py — sends Telegram alerts
-Credentials are read from environment variables (set via GitHub Secrets).
+Put your bot token and chat ID directly here.
 """
 
-import os
 import requests
 import logging
 
 log = logging.getLogger(__name__)
 
-TELEGRAM_API = "https://api.telegram.org/bot{token}/sendMessage"
+# ✅ PASTE YOUR VALUES BELOW:
+TELEGRAM_BOT_TOKEN = "8663391935:AAE3xLOt5JNd1sbvXliPyRSmh777T-Y3cOU"   # e.g. 7123456789:AAFxxx...
+TELEGRAM_CHAT_ID   = "6569762456"     # e.g. 123456789
+
+TELEGRAM_API = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 
 
 def send_telegram(message: str):
-    token   = os.environ["TELEGRAM_BOT_TOKEN"]
-    chat_id = os.environ["TELEGRAM_CHAT_ID"]
-
-    url = TELEGRAM_API.format(token=token)
     payload = {
-        "chat_id":    chat_id,
+        "chat_id":    TELEGRAM_CHAT_ID,
         "text":       message,
         "parse_mode": "Markdown",
     }
     try:
-        resp = requests.post(url, json=payload, timeout=10)
+        resp = requests.post(TELEGRAM_API, json=payload, timeout=10)
         resp.raise_for_status()
         log.info("📨 Telegram message sent!")
     except requests.exceptions.RequestException as e:
