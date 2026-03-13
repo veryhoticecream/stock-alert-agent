@@ -27,7 +27,14 @@ ALERTS = [
         "market":      "US",
         "label":       "TSMC ADR",
         "alert_above": 350.00,
-        "alert_below": 330.00,
+        "alert_below": 335.00,
+    },
+     {
+        "symbol":      "MU",
+        "market":      "US",
+        "label":       "Micron Technology Inc",
+        "alert_above": 430.00,
+        "alert_below": 420.00,
     },
 
 
