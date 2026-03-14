@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
 Stock Price Alert Agent — GitHub Actions Version
-Runs every 5 minutes via GitHub Actions (free).
-State is persisted in alert_state.json committed back to the repo,
-so alerts don't repeat across runs.
+Alerts only during active market hours (summer/DST-aware):
+  US  : 04:00–20:00 ET  (pre-market open → after-hours close)
+        = 08:00–00:00 UTC during EDT (summer, UTC-4)
+        = 09:00–01:00 UTC during EST (winter, UTC-5)
+  KOSPI: 09:00–15:30 KST = 00:00–06:30 UTC (KST is always UTC+9, no DST)
 """
 
-import json
-import os
-import sys
-import logging
-from datetime import datetime
+import json, os, sys, logging
+from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from price_fetcher import get_price
 from notifier import send_telegram, build_alert_message
 from config import ALERTS
@@ -21,8 +21,30 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 log = logging.getLogger(__name__)
-
 STATE_FILE = "alert_state.json"
+
+ET  = ZoneInfo("America/New_York")   # handles EDT/EST automatically
+KST = ZoneInfo("Asia/Seoul")
+
+
+def is_market_active(market: str) -> bool:
+    now_utc = datetime.now(timezone.utc)
+
+    if market == "KOSPI":
+        # KOSPI: Mon–Fri 09:00–15:30 KST
+        now_kst = now_utc.astimezone(KST)
+        if now_kst.weekday() >= 5:          # Saturday=5, Sunday=6
+            return False
+        t = now_kst.hour * 60 + now_kst.minute
+        return 9 * 60 <= t < 15 * 60 + 30
+
+    else:
+        # US stocks: Mon–Fri 04:00–20:00 ET (pre-market → after-hours)
+        now_et = now_utc.astimezone(ET)
+        if now_et.weekday() >= 5:
+            return False
+        t = now_et.hour * 60 + now_et.minute
+        return 4 * 60 <= t < 20 * 60
 
 
 def load_state() -> dict:
@@ -38,12 +60,13 @@ def save_state(state: dict):
 
 
 def main():
-    log.info("Stock Alert Agent running via GitHub Actions")
+    now_utc = datetime.now(timezone.utc)
+    log.info(f"Stock Alert Agent running — {now_utc.strftime('%Y-%m-%d %H:%M UTC')}")
     log.info(f"Checking {len(ALERTS)} ticker(s)...")
 
     state = load_state()
     alerts_sent = 0
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    timestamp = now_utc.strftime("%Y-%m-%d %H:%M UTC")
 
     for alert in ALERTS:
         symbol   = alert["symbol"]
@@ -52,6 +75,10 @@ def main():
         below    = alert.get("alert_below")
         label    = alert.get("label", symbol)
         currency = "KRW" if market == "KOSPI" else "USD"
+
+        if not is_market_active(market):
+            log.info(f"  [{market}] market closed — skipping {label}")
+            continue
 
         try:
             price = get_price(symbol, market)
@@ -65,8 +92,7 @@ def main():
             key = f"{symbol}_above_{above}"
             if price >= above:
                 if not state.get(key):
-                    msg = build_alert_message(label, symbol, "above", price, above, currency, timestamp)
-                    send_telegram(msg)
+                    send_telegram(build_alert_message(label, symbol, "above", price, above, currency, timestamp))
                     state[key] = True
                     if below is not None:
                         state[f"{symbol}_below_{below}"] = False
@@ -79,8 +105,7 @@ def main():
             key = f"{symbol}_below_{below}"
             if price <= below:
                 if not state.get(key):
-                    msg = build_alert_message(label, symbol, "below", price, below, currency, timestamp)
-                    send_telegram(msg)
+                    send_telegram(build_alert_message(label, symbol, "below", price, below, currency, timestamp))
                     state[key] = True
                     if above is not None:
                         state[f"{symbol}_above_{above}"] = False
