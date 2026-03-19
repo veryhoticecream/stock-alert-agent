@@ -33,8 +33,8 @@ ALERTS = [
         "symbol":      "MU",
         "market":      "US",
         "label":       "Micron Technology Inc",
-        "alert_above": 450.00,
-        "alert_below": 440.00,
+        "alert_above": 460.00,
+        "alert_below": 420.00,
     },
 
 
