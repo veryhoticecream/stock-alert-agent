@@ -26,17 +26,23 @@ ALERTS = [
         "symbol":      "TSM",
         "market":      "US",
         "label":       "TSMC ADR",
-        "alert_above": 350.00,
-        "alert_below": 335.00,
+        "alert_above": 380.00,
+        "alert_below": 366.00,
     },
      {
-        "symbol":      "MU",
+        "symbol":      "SCCO",
         "market":      "US",
-        "label":       "Micron Technology Inc",
-        "alert_above": 460.00,
-        "alert_below": 420.00,
+        "label":       "Southern Copper Corporation",
+        "alert_above": 210.00,
+        "alert_below": 188.00,
     },
-
+ {
+        "symbol":      "NEM",
+        "market":      "US",
+        "label":       "Newmont Corporation",
+        "alert_above": 130.00,
+        "alert_below": 118.00,
+    },
 
     # ── KOSPI Stocks (KRW) ──────────────────────────────────
     {
