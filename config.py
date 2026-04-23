@@ -15,20 +15,7 @@
 ALERTS = [
 
     # ── US Stocks (USD) ─────────────────────────────────────
-    {
-        "symbol":      "NVDA",
-        "market":      "US",
-        "label":       "NVIDIA",
-        "alert_above": 190.00,
-        "alert_below": 180.00,
-    },
-    {
-        "symbol":      "TSM",
-        "market":      "US",
-        "label":       "TSMC ADR",
-        "alert_above": 380.00,
-        "alert_below": 366.00,
-    },
+
      {
         "symbol":      "SCCO",
         "market":      "US",
