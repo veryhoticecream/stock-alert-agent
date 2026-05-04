@@ -21,14 +21,14 @@ ALERTS = [
         "market":      "US",
         "label":       "Southern Copper Corporation",
         "alert_above": 210.00,
-        "alert_below": 188.00,
+       
     },
  {
         "symbol":      "NEM",
         "market":      "US",
         "label":       "Newmont Corporation",
         "alert_above": 130.00,
-        "alert_below": 118.00,
+       
     },
 
     # ── KOSPI Stocks (KRW) ──────────────────────────────────
